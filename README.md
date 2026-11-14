@@ -66,6 +66,8 @@ Entity names are in Spanish.
 
 Three versions, designed for support-free FDM printing (Bambu Lab X1C, 0.4 mm nozzle, ABS):
 
+> **Printing in ABS or ASA?** Scale the model to **100.5 %** in your slicer to make up for shrinkage, otherwise the PCB and the lid will fit too tight.
+
 | Version | | Download |
 |---|---|---|
 | **Compact enclosure** (32 × 57 × 16 mm). Snap-fit lid, clip-held PCB. | <img src="docs/img/caja_despiece.jpg" width="200"> | MakerWorld *(link coming soon)* |
@@ -139,6 +141,8 @@ esphome run sensor-presencia.yaml --device COMx
 ## Caja impresa en 3D
 
 Tres versiones, diseñadas para impresión FDM sin soportes (Bambu Lab X1C, boquilla 0,4 mm, ABS):
+
+> **¿Imprimes en ABS o ASA?** Escala el modelo al **100,5 %** en el laminador para compensar la contracción; si no, la placa y la tapa quedarán demasiado justas.
 
 | Versión | | Descarga |
 |---|---|---|
