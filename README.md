@@ -64,13 +64,13 @@ Entity names are in Spanish.
 
 ## 3D-printed enclosure
 
-Three versions, designed for support-free FDM printing (Bambu Lab X1C, 0.4 mm nozzle, ABS):
+Three versions, designed for FDM printing (Bambu Lab X1C, 0.4 mm nozzle, ABS):
 
 > **Printing in ABS or ASA?** Scale the model to **100.5 %** in your slicer to make up for shrinkage, otherwise the PCB and the lid will fit too tight.
 
 | Version | | Download |
 |---|---|---|
-| **Compact enclosure** (32 × 57 × 16 mm). Snap-fit lid, clip-held PCB. | <img src="docs/img/caja_despiece.jpg" width="200"> | MakerWorld *(link coming soon)* |
+| **Compact enclosure** (32 × 57 × 16 mm). Snap-fit lid, clip-held PCB. Needs minimal supports. | <img src="docs/img/caja_despiece.jpg" width="200"> | MakerWorld *(link coming soon)* |
 | **Dual-hinge wall mount.** Pan and tilt, locks with 2 × M3. | <img src="docs/img/soporte_bisagra.jpg" width="200"> | MakerWorld *(link coming soon)* |
 | **Ball-joint wall mount.** ±35° plus 360° rotation, locks with 1 × M3. | <img src="docs/img/soporte_rotula.jpg" width="200"> | MakerWorld *(link coming soon)* |
 
@@ -140,13 +140,13 @@ esphome run sensor-presencia.yaml --device COMx
 
 ## Caja impresa en 3D
 
-Tres versiones, diseñadas para impresión FDM sin soportes (Bambu Lab X1C, boquilla 0,4 mm, ABS):
+Tres versiones, diseñadas para impresión FDM (Bambu Lab X1C, boquilla 0,4 mm, ABS):
 
 > **¿Imprimes en ABS o ASA?** Escala el modelo al **100,5 %** en el laminador para compensar la contracción; si no, la placa y la tapa quedarán demasiado justas.
 
 | Versión | | Descarga |
 |---|---|---|
-| **Caja compacta** (32 × 57 × 16 mm). Tapa con clic y placa sujeta con clips. | <img src="docs/img/caja_despiece.jpg" width="200"> | MakerWorld *(enlace pendiente)* |
+| **Caja compacta** (32 × 57 × 16 mm). Tapa con clic y placa sujeta con clips. Necesita soportes mínimos. | <img src="docs/img/caja_despiece.jpg" width="200"> | MakerWorld *(enlace pendiente)* |
 | **Soporte de pared de doble bisagra.** Giro e inclinación, bloqueo con 2 × M3. | <img src="docs/img/soporte_bisagra.jpg" width="200"> | MakerWorld *(enlace pendiente)* |
 | **Soporte de pared de rótula.** ±35° y giro de 360°, bloqueo con 1 × M3. | <img src="docs/img/soporte_rotula.jpg" width="200"> | MakerWorld *(enlace pendiente)* |
 
