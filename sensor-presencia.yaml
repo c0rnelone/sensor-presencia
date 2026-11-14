@@ -1,0 +1,253 @@
+# Sensor de presencia: nanoESP32-C6 + HLK-LD2410C  (versión Zigbee)
+#
+# Conexiones (según la foto):
+#   LD2410C VCC -> 5V
+#   LD2410C GND -> GND
+#   LD2410C OUT -> GPIO9  (NO se usa; ver nota abajo)
+#   LD2410C RX  -> GPIO18 (TX del ESP)
+#   LD2410C TX  -> GPIO19 (RX del ESP)
+#
+# Nota: GPIO9 es pin de arranque (strapping) del ESP32-C6. No lo configuramos;
+# toda la información llega por UART.
+#
+# Se comunica con Home Assistant por Zigbee (Zigbee2MQTT), sin WiFi.
+# Por Zigbee, ESPHome solo publica binary_sensor, sensor, switch y number.
+# Los select y button del radar son internos y se manejan desde
+# interruptores/números "puente" que sí viajan por Zigbee.
+# Los nombres van sin tildes: Zigbee solo admite ASCII en el nombre.
+#
+# Para actualizar el firmware: conectar por USB y
+#   .venv\Scripts\esphome.exe run sensor-presencia.yaml --device COMx
+# La versión por WiFi está en sensor-presencia-wifi.yaml
+
+substitutions:
+  name: sensor-presencia
+  friendly_name: Sensor presencia
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-c6-devkitc-1
+  variant: esp32c6
+  framework:
+    type: esp-idf
+
+logger:
+  # Logs por el USB nativo (puerto "USB JTAG/serial debug unit")
+  baud_rate: 115200
+
+zigbee:
+  model: Sensor presencia LD2410C
+  # Dispositivo final (no router): lo más estable con el soporte Zigbee de ESPHome
+  router: false
+
+uart:
+  id: ld2410_uart
+  tx_pin: GPIO18
+  rx_pin: GPIO19
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+ld2410:
+  id: radar
+  uart_id: ld2410_uart
+
+# ───────────── Lecturas ─────────────
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: Presencia
+      device_class: occupancy
+      cluster: device_class   # cluster estándar de ocupación
+    has_moving_target:
+      name: Movimiento
+    has_still_target:
+      name: Presencia estatica
+    out_pin_presence_status:
+      name: Estado pin OUT
+
+sensor:
+  - platform: ld2410
+    detection_distance:
+      name: Distancia
+    moving_distance:
+      name: Distancia movimiento
+    still_distance:
+      name: Distancia estatica
+    moving_energy:
+      name: Energia movimiento
+    still_energy:
+      name: Energia estatica
+    light:
+      name: Luz   # solo se actualiza con el modo ingenieria activado
+
+# ───────────── Ajustes nativos del radar ─────────────
+number:
+  - platform: ld2410
+    timeout:
+      name: Tiempo de espera
+    max_move_distance_gate:
+      name: Puerta max movimiento
+    max_still_distance_gate:
+      name: Puerta max estatica
+    light_threshold:
+      name: Umbral de luz
+    # Sensibilidad por puerta (cada puerta = 0,75 m o 0,2 m segun resolucion).
+    # Cuanto MAS bajo el umbral, MAS sensible.
+    g0:
+      move_threshold:
+        name: G0 umbral movimiento
+      still_threshold:
+        name: G0 umbral estatico
+    g1:
+      move_threshold:
+        name: G1 umbral movimiento
+      still_threshold:
+        name: G1 umbral estatico
+    g2:
+      move_threshold:
+        name: G2 umbral movimiento
+      still_threshold:
+        name: G2 umbral estatico
+    g3:
+      move_threshold:
+        name: G3 umbral movimiento
+      still_threshold:
+        name: G3 umbral estatico
+    g4:
+      move_threshold:
+        name: G4 umbral movimiento
+      still_threshold:
+        name: G4 umbral estatico
+    g5:
+      move_threshold:
+        name: G5 umbral movimiento
+      still_threshold:
+        name: G5 umbral estatico
+    g6:
+      move_threshold:
+        name: G6 umbral movimiento
+      still_threshold:
+        name: G6 umbral estatico
+    g7:
+      move_threshold:
+        name: G7 umbral movimiento
+      still_threshold:
+        name: G7 umbral estatico
+    g8:
+      move_threshold:
+        name: G8 umbral movimiento
+      still_threshold:
+        name: G8 umbral estatico
+
+  # Puente para el select "funcion luz": 0 = off, 1 = below, 2 = above
+  - platform: template
+    name: Funcion luz (0 off 1 debajo 2 encima)
+    min_value: 0
+    max_value: 2
+    step: 1
+    lambda: |-
+      auto i = id(sel_luz).active_index();
+      return i.has_value() ? (float) *i : NAN;
+    set_action:
+      - select.set_index:
+          id: sel_luz
+          index: !lambda 'return (size_t) x;'
+
+switch:
+  - platform: ld2410
+    bluetooth:
+      name: Bluetooth radar
+    engineering_mode:
+      name: Modo ingenieria
+
+  # Puentes para los select de dos opciones
+  - platform: template
+    name: Resolucion 0.2m
+    lambda: |-
+      auto i = id(sel_resolucion).active_index();
+      return i.has_value() && *i == 0;   // opciones: 0.2m, 0.75m
+    turn_on_action:
+      - select.set_index: { id: sel_resolucion, index: 0 }
+    turn_off_action:
+      - select.set_index: { id: sel_resolucion, index: 1 }
+
+  - platform: template
+    name: Pin OUT nivel alto
+    lambda: |-
+      auto i = id(sel_out).active_index();
+      return i.has_value() && *i == 1;   // opciones: low, high
+    turn_on_action:
+      - select.set_index: { id: sel_out, index: 1 }
+    turn_off_action:
+      - select.set_index: { id: sel_out, index: 0 }
+
+  # Puentes para los botones: se encienden, ejecutan y se apagan solos
+  - platform: template
+    id: sw_reiniciar
+    name: Reiniciar radar
+    optimistic: true
+    turn_on_action:
+      - button.press: btn_reiniciar
+      - delay: 1s
+      - switch.turn_off: sw_reiniciar
+
+  - platform: template
+    id: sw_leer
+    name: Leer parametros
+    optimistic: true
+    turn_on_action:
+      - button.press: btn_leer
+      - delay: 1s
+      - switch.turn_off: sw_leer
+
+  - platform: template
+    id: sw_reset
+    name: Reset fabrica radar
+    optimistic: true
+    turn_on_action:
+      - button.press: btn_reset
+      - delay: 1s
+      - switch.turn_off: sw_reset
+
+  - platform: template
+    id: sw_reiniciar_esp
+    name: Reiniciar ESP
+    optimistic: true
+    turn_on_action:
+      - delay: 500ms
+      - lambda: App.safe_reboot();
+
+# ───────────── Internos (no viajan por Zigbee) ─────────────
+select:
+  - platform: ld2410
+    distance_resolution:
+      id: sel_resolucion
+      name: Resolucion distancia
+      internal: true
+    light_function:
+      id: sel_luz
+      name: Funcion luz
+      internal: true
+    out_pin_level:
+      id: sel_out
+      name: Nivel pin OUT
+      internal: true
+
+button:
+  - platform: ld2410
+    restart:
+      id: btn_reiniciar
+      name: Reiniciar radar btn
+      internal: true
+    query_params:
+      id: btn_leer
+      name: Leer parametros btn
+      internal: true
+    factory_reset:
+      id: btn_reset
+      name: Reset fabrica btn
+      internal: true

@@ -1,0 +1,18 @@
+# ESPHome
+/.esphome/
+/secrets.yaml
+*.bak
+
+# Entorno Python local
+/.venv/
+
+# Modelos 3D: las STL y los STEP se publican solo en MakerWorld
+/Modelo 3D/
+*.stl
+*.3mf
+*.step
+*.stp
+*.f3d
+
+# Fotos originales del móvil
+/IMG*.jpg
