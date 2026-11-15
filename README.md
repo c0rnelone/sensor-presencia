@@ -62,6 +62,24 @@ Entity names are in Spanish.
 - Radar settings: timeout, max gates, per-gate thresholds (G0–G8), distance resolution, light function, Bluetooth and engineering mode
 - Radar restart and factory reset, parameter readout, ESP restart
 
+### Calibration mode (Zigbee version)
+
+To keep Zigbee traffic low, the detailed readings are only sent while the **Modo calibracion** switch is on:
+
+- Moving and still distances, total moving and still energies, light level
+- **Per-gate energies** (G0–G8, moving and still), so you can see in which gate the noise is
+
+Turning it on also enables the radar's engineering mode. Values are sent at most every 2 s and the mode switches itself off after 30 minutes. While it is off, the energy entities keep showing their last value.
+
+Calibrating: with the room **empty**, watch the energy of each gate for a few minutes and set that gate's threshold a little above the highest value (about 5–10 points). Then check that you are still detected when sitting still where you usually are.
+
+Factory thresholds (firmware 2.44, 0.75 m per gate):
+
+| Gate | G0 | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 |
+|---|---|---|---|---|---|---|---|---|---|
+| Moving | 50 | 50 | 40 | 30 | 20 | 15 | 15 | 15 | 15 |
+| Still | — | — | 40 | 40 | 30 | 30 | 20 | 20 | 20 |
+
 ## 3D-printed enclosure
 
 Three versions, designed for FDM printing (Bambu Lab X1C, 0.4 mm nozzle, ABS):
@@ -137,6 +155,24 @@ esphome run sensor-presencia.yaml --device COMx
 - Luz (solo con el modo ingeniería activado)
 - Ajustes del radar: tiempo de espera, puertas máximas, umbrales por puerta (G0–G8), resolución, función de luz, Bluetooth y modo ingeniería
 - Reinicio y reset de fábrica del radar, lectura de parámetros, reinicio del ESP
+
+### Modo calibración (versión Zigbee)
+
+Para no cargar la red Zigbee, las lecturas detalladas solo se envían con el interruptor **Modo calibracion** encendido:
+
+- Distancias de movimiento y estática, energías totales de movimiento y estática, luz
+- **Energía por puerta** (G0–G8, movimiento y estática), para ver en qué puerta está el ruido
+
+Al encenderlo se activa también el modo ingeniería del radar. Los valores se envían como mucho cada 2 s y el modo se apaga solo a los 30 minutos. Con el modo apagado, las energías se quedan mostrando su último valor.
+
+Para calibrar: con la habitación **vacía**, observa unos minutos la energía de cada puerta y pon su umbral un poco por encima del valor más alto (unos 5–10 puntos). Después comprueba que te sigue detectando estando quieto en tu sitio habitual.
+
+Umbrales de fábrica (firmware 2.44, 0,75 m por puerta):
+
+| Puerta | G0 | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 |
+|---|---|---|---|---|---|---|---|---|---|
+| Movimiento | 50 | 50 | 40 | 30 | 20 | 15 | 15 | 15 | 15 |
+| Estático | — | — | 40 | 40 | 30 | 30 | 20 | 20 | 20 |
 
 ## Caja impresa en 3D
 

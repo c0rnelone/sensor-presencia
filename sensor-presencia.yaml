@@ -42,6 +42,9 @@ zigbee:
   model: Sensor presencia LD2410C
   # Dispositivo final (no router): lo más estable con el soporte Zigbee de ESPHome
   router: false
+  # Reenvía todos los ajustes al unirse, para que Z2M tenga los valores reales
+  on_join:
+    - script.execute: reenviar_numeros
 
 uart:
   id: ld2410_uart
@@ -55,6 +58,22 @@ ld2410:
   id: radar
   uart_id: ld2410_uart
 
+# Envío de valores por Zigbee:
+#   Zigbee2MQTT solo configura el "reporting" del primer endpoint de cada tipo.
+#   Para el resto usamos `report: force`: el ESP envía el valor cada vez que
+#   cambia, sin depender del coordinador.
+#
+# Modo calibracion:
+#   Las distancias de movimiento/estática, las energías (totales y por puerta)
+#   y la luz solo se envían con el interruptor "Modo calibracion" encendido,
+#   como mucho cada 2 s. Con él apagado se descartan en el propio ESP y no
+#   generan tráfico Zigbee. Se apaga solo a los 30 min.
+.calibracion: &filtros_calibracion
+  - lambda: |-
+      if (!id(sw_calibracion).state) return {};
+      return x;
+  - throttle: 2s
+
 # ───────────── Lecturas ─────────────
 binary_sensor:
   - platform: ld2410
@@ -64,10 +83,13 @@ binary_sensor:
       cluster: device_class   # cluster estándar de ocupación
     has_moving_target:
       name: Movimiento
+      report: force
     has_still_target:
       name: Presencia estatica
+      report: force
     out_pin_presence_status:
       name: Estado pin OUT
+      report: force
 
 sensor:
   - platform: ld2410
@@ -75,73 +97,133 @@ sensor:
       name: Distancia
     moving_distance:
       name: Distancia movimiento
+      report: force
+      filters: *filtros_calibracion
     still_distance:
       name: Distancia estatica
+      report: force
+      filters: *filtros_calibracion
     moving_energy:
       name: Energia movimiento
+      report: force
+      filters: *filtros_calibracion
     still_energy:
       name: Energia estatica
+      report: force
+      filters: *filtros_calibracion
     light:
-      name: Luz   # solo se actualiza con el modo ingenieria activado
+      name: Luz   # solo con modo ingenieria (lo activa el modo calibracion)
+      report: force
+      filters: *filtros_calibracion
+    # Energía por puerta: solo existe en modo ingenieria
+    g0:
+      move_energy: { name: G0 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G0 energia estatica, report: force, filters: *filtros_calibracion }
+    g1:
+      move_energy: { name: G1 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G1 energia estatica, report: force, filters: *filtros_calibracion }
+    g2:
+      move_energy: { name: G2 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G2 energia estatica, report: force, filters: *filtros_calibracion }
+    g3:
+      move_energy: { name: G3 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G3 energia estatica, report: force, filters: *filtros_calibracion }
+    g4:
+      move_energy: { name: G4 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G4 energia estatica, report: force, filters: *filtros_calibracion }
+    g5:
+      move_energy: { name: G5 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G5 energia estatica, report: force, filters: *filtros_calibracion }
+    g6:
+      move_energy: { name: G6 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G6 energia estatica, report: force, filters: *filtros_calibracion }
+    g7:
+      move_energy: { name: G7 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G7 energia estatica, report: force, filters: *filtros_calibracion }
+    g8:
+      move_energy: { name: G8 energia movimiento, report: force, filters: *filtros_calibracion }
+      still_energy: { name: G8 energia estatica, report: force, filters: *filtros_calibracion }
 
 # ───────────── Ajustes nativos del radar ─────────────
 number:
   - platform: ld2410
     timeout:
       name: Tiempo de espera
+      report: force
     max_move_distance_gate:
       name: Puerta max movimiento
+      report: force
     max_still_distance_gate:
       name: Puerta max estatica
+      report: force
     light_threshold:
       name: Umbral de luz
+      report: force
     # Sensibilidad por puerta (cada puerta = 0,75 m o 0,2 m segun resolucion).
     # Cuanto MAS bajo el umbral, MAS sensible.
     g0:
       move_threshold:
         name: G0 umbral movimiento
+        report: force
       still_threshold:
         name: G0 umbral estatico
+        report: force
     g1:
       move_threshold:
         name: G1 umbral movimiento
+        report: force
       still_threshold:
         name: G1 umbral estatico
+        report: force
     g2:
       move_threshold:
         name: G2 umbral movimiento
+        report: force
       still_threshold:
         name: G2 umbral estatico
+        report: force
     g3:
       move_threshold:
         name: G3 umbral movimiento
+        report: force
       still_threshold:
         name: G3 umbral estatico
+        report: force
     g4:
       move_threshold:
         name: G4 umbral movimiento
+        report: force
       still_threshold:
         name: G4 umbral estatico
+        report: force
     g5:
       move_threshold:
         name: G5 umbral movimiento
+        report: force
       still_threshold:
         name: G5 umbral estatico
+        report: force
     g6:
       move_threshold:
         name: G6 umbral movimiento
+        report: force
       still_threshold:
         name: G6 umbral estatico
+        report: force
     g7:
       move_threshold:
         name: G7 umbral movimiento
+        report: force
       still_threshold:
         name: G7 umbral estatico
+        report: force
     g8:
       move_threshold:
         name: G8 umbral movimiento
+        report: force
       still_threshold:
         name: G8 umbral estatico
+        report: force
 
   # Puente para el select "funcion luz": 0 = off, 1 = below, 2 = above
   - platform: template
@@ -161,8 +243,11 @@ switch:
   - platform: ld2410
     bluetooth:
       name: Bluetooth radar
+      report: force
     engineering_mode:
+      id: sw_ingenieria
       name: Modo ingenieria
+      report: force
 
   # Puentes para los select de dos opciones
   - platform: template
@@ -203,6 +288,8 @@ switch:
       - button.press: btn_leer
       - delay: 1s
       - switch.turn_off: sw_leer
+      - delay: 1s
+      - script.execute: reenviar_numeros
 
   - platform: template
     id: sw_reset
@@ -220,6 +307,42 @@ switch:
     turn_on_action:
       - delay: 500ms
       - lambda: App.safe_reboot();
+
+  # Modo calibracion: activa el modo ingenieria y el envío de distancias y
+  # energías (ver "Envío de valores por Zigbee" arriba). Se apaga solo a los 30 min.
+  # IMPORTANTE: los endpoints Zigbee se asignan por orden de declaración.
+  # Las entidades nuevas van siempre AL FINAL de su lista para no desplazar
+  # las existentes (Zigbee2MQTT las identifica por número de endpoint).
+  - platform: template
+    id: sw_calibracion
+    name: Modo calibracion
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    report: force
+    turn_on_action:
+      - switch.turn_on: sw_ingenieria
+      - script.execute: apagar_calibracion
+    turn_off_action:
+      - script.stop: apagar_calibracion
+      - switch.turn_off: sw_ingenieria
+
+script:
+  # El componente ld2410 solo publica un umbral si cambia respecto al valor
+  # guardado en el ESP. Esto los vuelve a publicar todos para que Zigbee
+  # (report: force) los envíe aunque no hayan cambiado.
+  - id: reenviar_numeros
+    mode: single
+    then:
+      - lambda: |-
+          for (auto *n : App.get_numbers()) {
+            if (n->has_state()) n->publish_state(n->state);
+          }
+
+  - id: apagar_calibracion
+    mode: restart
+    then:
+      - delay: 30min
+      - switch.turn_off: sw_calibracion
 
 # ───────────── Internos (no viajan por Zigbee) ─────────────
 select:
